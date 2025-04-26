@@ -14,7 +14,6 @@ This script implements the 3-D time-dependent Schrödinger equation in external 
 
 #%% Import libraries, functions and constants
 import os, sys
-sys.path.append(r'D:\MyWindows\MyProjects\VE-SpectralMethod\scr')  # customized modules therein
 import warnings
 warnings.filterwarnings("ignore")
 
