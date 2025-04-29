@@ -4,7 +4,7 @@ Operator-Splitting Solvers for the Time-Dependent Schrödinger and Dirac Equatio
 
 ## Implementation on the Schrödinger equation
 
-The code is benchmarked with a vortex state electron 3D wave-packet propagating in a uniform magnetic field. The initial wave-front is a Laguerre-Gaussian packet.
+The code is benchmarked with a vortex state electron 3D wave-packet propagating in a uniform magnetic field. The initial wave-front is a Laguerre-Gaussian packet. A regular Cartesian mesh of 128x128x128 is used here.
 
 ---
 ![Vortex packet](https://github.com/Leonardo-HHD/Split-Step-Quantum/blob/dev/examples/Schrodinger/vortex_co-axis_vz%3D0_Bz%3D2.0T/Psi.gif)
