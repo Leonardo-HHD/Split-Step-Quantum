@@ -7,7 +7,7 @@ Operator-Splitting Solvers for the Time-Dependent Schrödinger and Dirac Equatio
 The code is benchmarked with a vortex state electron 3D wave-packet propagating in a uniform magnetic field. The initial wave-front is a Laguerre-Gaussian packet.
 
 ---
-![Vortex packet](https://github.com/Leonardo-HHD/Split-Step-Quantum/blob/dev/examples/Schrodinger/vortex_co-axis_vz=0_Bz=2.0T/Psi.gif)
+![Vortex packet](https://github.com/Leonardo-HHD/Split-Step-Quantum/blob/dev/examples/Schrodinger/vortex_co-axis_vz%3D0_Bz%3D2.0T/Psi.gif)
 
 This one is the case of:
 - initial beam waist of 0.5 micrometer
@@ -17,7 +17,7 @@ This one is the case of:
 This case present the Landau-type eigen-state of vortex electron in uniform magneitc field.
 
 ---
-![Vortex packet](https://github.com/Leonardo-HHD/Split-Step-Quantum/blob/dev/examples/Schrodinger/vortex_ortho_vz0=40kms_By=2.0T/Psi.gif)
+![Vortex packet](https://github.com/Leonardo-HHD/Split-Step-Quantum/blob/dev/examples/Schrodinger/vortex_ortho_vz0%3D40kms_By%3D2.0T/Psi.gif)
 
 This is the case of:
 - initial beam waist of 0.5 micrometer
