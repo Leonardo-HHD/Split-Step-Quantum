@@ -3,4 +3,4 @@
 Operator-Splitting Solvers for the Time-Dependent Schrödinger and Dirac Equations.
 
 
-![Vortex packet](\examples\Schrodinger\vortex co-axis vz=0 Bz=2.0T\Psi.gif)
+![Vortex packet](\examples\Schrodinger\vortex_co-axis_vz=0_Bz=2.0T\Psi.gif)
