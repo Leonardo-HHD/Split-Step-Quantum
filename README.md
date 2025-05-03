@@ -10,9 +10,10 @@ The code is benchmarked with a vortex state electron 3D wave-packet propagating 
 ![Vortex packet](https://github.com/Leonardo-HHD/Split-Step-Quantum/blob/dev/examples/Schrodinger/vortex_co-axis_vz%3D0_Bz%3D2.0T/Psi.gif)
 
 This one is the case of:
-- initial beam waist of 0.5 micrometer
-- zero-initial momentum
-- longitudinal magnetic field of 2.0 Tesla
+- initial scales: characteristic radius of 20 nanometers, characteristic length of 20 nanometers
+- initial speed: 0.01% light-speed, along $z$-axis
+- magnetic field: 2.0 Tesla, along $z$-axis
+- scalar potential: none
 
 This case present the Landau-type eigen-state of vortex electron in uniform magneitc field.
 
@@ -20,9 +21,10 @@ This case present the Landau-type eigen-state of vortex electron in uniform magn
 ![Vortex packet](https://github.com/Leonardo-HHD/Split-Step-Quantum/blob/dev/examples/Schrodinger/vortex_ortho_vz0%3D40kms_By%3D2.0T/Psi.gif)
 
 This is the case of:
-- initial beam waist of 0.5 micrometer
-- initial speed of $40~\mathrm{km/s}$
-- perpendicular magnetic field of 2.0 Tesla
+- initial scales: characteristic radius of 20 nanometers, characteristic length of 20 nanometers
+- initial speed: 0.01% light-speed, along $z$-axis
+- magnetic field: 2.0 Tesla, along $y$-axis
+- scalar potential: parabola central potential along y-dimention, $U(y)=10\mathrm{V}\cdot(\frac{y}{10\mathrm{\mu m}})^2$
 
 This showcases the Larmor gyration of momentum and the gyration of intrinsic orbital angular momentum (iOAM). Here, the gyro-period of iOAM is exact half of the period of Larmor, which is well consistent with the analytical results in [this PRA](https://link.aps.org/doi/10.1103/PhysRevA.86.012701).
 
