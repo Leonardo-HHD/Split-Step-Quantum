@@ -19,6 +19,16 @@ This one is the case of:
 This case present the Landau-type eigen-state of vortex electron in uniform magneitc field.
 
 ---
+![Vortex packet](https://github.com/Leonardo-HHD/Split-Step-Quantum/blob/dev/examples/Schrodinger/para_central_trap_vz%3D0_U0%3D%2B10V_wz%3D10um_Bz%3D2.0T/Psi.gif)
+
+This is the case of:
+- initial scales: characteristic radius of 20 nanometers, characteristic length of 20 nanometers
+- initial speed: 0
+- magnetic field: 2.0 Tesla, along $z$-axis
+- scalar potential: parabola central potential along y-dimention, $U(z)=10\mathrm{V}\cdot(\frac{z}{10\mathrm{\mu m}})^2$
+- mesh grid: regular Cartesian mesh of 128x128x128
+
+---
 ![Vortex packet](https://github.com/Leonardo-HHD/Split-Step-Quantum/blob/dev/examples/Schrodinger/perp_central_trap_vz0%3D0_U0%3D%2B10V_wy%3D10um_By%3D2.0T/Psi.gif)
 
 This is the case of:
