@@ -11,11 +11,20 @@ The code is benchmarked with a vortex state electron 3D wave-packet propagating 
 
 This one is the case of:
 - initial scales: characteristic radius of 20 nanometers, characteristic length of 20 nanometers
-- initial speed: 0.01% light-speed, along $z$-axis
+- initial speed: 0
 - magnetic field: 2.0 Tesla, along $z$-axis
 - scalar potential: none
 
 This case present the Landau-type eigen-state of vortex electron in uniform magneitc field.
+
+---
+![Vortex packet](https://github.com/Leonardo-HHD/Split-Step-Quantum/blob/dev/examples/Schrodinger/perp_central_trap_vz0%3D0_U0%3D%2B10V_wy%3D10um_By%3D2.0T/Psi.gif)
+
+This is the case of:
+- initial scales: characteristic radius of 20 nanometers, characteristic length of 20 nanometers
+- initial speed: 0
+- magnetic field: 2.0 Tesla, along $y$-axis
+- scalar potential: parabola central potential along y-dimention, $U(y)=10\mathrm{V}\cdot(\frac{y}{10\mathrm{\mu m}})^2$
 
 ---
 ![Vortex packet](https://github.com/Leonardo-HHD/Split-Step-Quantum/blob/dev/examples/Schrodinger/perp_central_trap_vz0%3D30kms_U0%3D%2B10V_wy%3D10um_By%3D2.0T/Psi.gif)
