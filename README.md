@@ -1,6 +1,6 @@
 # Split-Step-Quantum
 
-Operator-Splitting Solvers for the Time-Dependent Schrödinger and Dirac Equations.
+Operator-Splitting Solvers for the Time-Dependent Schrödinger, Hartree and Dirac Equations.
 
 ## Implementation on the Schrödinger equation
 
