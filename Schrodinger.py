@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 """
 ENCODING: utf-8
-FILE: Maxwell_Schrodinger.py
-PROJECT: Quantum Dynamics in External Fields
+FILE: Schrodinger.py
+PROJECT: Spltting-Step Quantum
 AUTHOR: Léonard HUANG Hui-Dong
 VERSION: 0.0
 CREATED: 2025-04-16
-LAST MODIFIED: 2025-04-16
+LAST MODIFIED: 2025-05-24
 
 DESCRIPTION:
 This script implements the 3-D time-dependent Schrödinger equation in external electromagnetic fields, using semi-Lagrange Strange-spillting Fourier pseudo-spectral methods.
@@ -14,13 +14,14 @@ This script implements the 3-D time-dependent Schrödinger equation in external 
 
 #%% Import libraries, functions and constants
 import os, sys
+sys.path.append(r'D:\MyWindows\MyProjects\VE-SpectralMethod\scr')  # customized modules therein
 import warnings
 warnings.filterwarnings("ignore")
 
 import numpy as np
 from numpy import array, asarray, stack, dot, cross, einsum
 from numpy import eye, transpose, ones, full
-I = eye(3) # 3x3 identity matrix
+I3 = eye(3) # 3x3 identity matrix
 from numpy import real, imag, conj, angle, iscomplexobj, isrealobj
 from numpy import abs, sign, inf, pi, exp, log, sin, asin, cos, acos, tan, atan2, sinh, asinh, cosh, acosh, tanh, atanh
 from numpy.linalg import norm
@@ -35,32 +36,14 @@ from tqdm import tqdm
 from time import time
 
 #%% External fields
-
-from numpy import broadcast
-def B(t, x, y, z):
-    uniformB = np.array([0.0, 2.0, 0.0])  # uniform magnetic field in [T]
-    B_ = full((*broadcast(x, y, z).shape, 3), uniformB)
-    return B_.astype(np.float32)
-
-@np.vectorize(signature='(),(),(),()->(n)')
-def A(t,x,y,z): # vector potential in [T*m]
-    x, y, z = asarray(x), asarray(y), asarray(z)
-    r = stack([x,y,z], axis=-1) # to make r.shape = (..., 3)
-    _B = B(t,x,y,z) # magnetic field in [T]
-    # A = -1/2 r x B = 1/2 B x r
-    return (0.5*cross(_B,r)).astype(np.float32)
-
-@np.vectorize(signature='(),(),(),()->()')
-def Phi(t,x,y,z): # scalar potential in [V]
-    x, y, z = asarray(x), asarray(y), asarray(z)
-    r = stack([x,y,z], axis=-1) # to make r.shape = (..., 3)
-    E = array([0,0,0]) # electric field in [V/m]
-    # Phi = r . E
-    return dot(r,E).astype(np.float32)
-    # np.dot(a,b) require a to be (...,3) when b is (3,)
+from utils.fields import generate_parabola_potential, generate_const_B, generate_solenoid
+# [Brown and Gabrielse. RMP1986]: electronU0=10.22 V,r0=3.35*1.41 mm,z0=3.35 mm,B0=5.872 T
+# Phi, A, E, B = generate_Penning_trap(U0=+10.22,r0=4.72*milli,z0=3.35*milli,B0=5.872*milli)
+Phi, E = generate_parabola_potential(U0=-1e1,wx=25*micro,wy=25*micro,wz=25*micro)
+A, B = generate_const_B(const=[0.0,1.41,1.41]) # uniform magnetic field in [T]
+# A, B = generate_solenoid(type='Glaser',z0=0.05*micro,wm=0.1*micro,B0=2.5)
 
 #%% Solver class
-
 class OSM:
     '''
     Operator-Splitting Method (OSM) for the time evolution operator
@@ -130,9 +113,9 @@ class OSM:
 
         # Save the grid and initial wavefunction to .npy files
         if True:
-            np.savetxt("x.txt", self.x, fmt='%g', header="x[m]")
-            np.savetxt("y.txt", self.y, fmt='%g', header="y[m]")
-            np.savetxt("z.txt", self.z, fmt='%g', header="z[m]")
+            np.savetxt("x.dat", self.x, fmt='%g', header="x[m]")
+            np.savetxt("y.dat", self.y, fmt='%g', header="y[m]")
+            np.savetxt("z.dat", self.z, fmt='%g', header="z[m]")
             np.save("kx.npy", self.kx)
             np.save("ky.npy", self.ky)
             np.save("kz.npy", self.kz)
@@ -143,17 +126,17 @@ class OSM:
             print("0_Phi",self._Phi.shape," saved.")
             np.save("0_A.npy", self._A)
             print("0_A",self._A.shape," saved.")
-            np.savetxt("spacing.txt", [[self.Lx, self.Ly, self.Lz, self.Nx, self.Ny, self.Nz]], fmt='%g %g %g %d %d %d', header="Lx[m] Ly[m] Lz[m] Nx Ny Nz")
-            print("spacing.txt saved.")
-            np.savetxt("timing.txt", [[self.Titr, self.t]], fmt='%d %g', header="idx t[s]")
-            print("timing.txt created.")
+            np.savetxt("spacing.dat", [[self.Lx, self.Ly, self.Lz, self.Nx, self.Ny, self.Nz]], fmt='%g %g %g %d %d %d', header="Lx[m] Ly[m] Lz[m] Nx Ny Nz")
+            print("spacing.dat saved.")
+            np.savetxt("timing.dat", [[self.Titr, self.t]], fmt='%d %g', header="idx t[s]")
+            print("timing.dat created.")
 
         # Discrete kinetic operator in momentum space
         self._D = exp(-0.5j*dt*hbar/m * K2).astype(np.complex64)
         self._D_2 = exp(-0.25j*dt*hbar/m * K2).astype(np.complex64)
 
         # Discrete potential operator in position space
-        self._U = exp(-1j*(dt/hbar)*(q**2/(2*m)*self._A2 - q*(self._Phi))).astype(np.complex64)
+        self._U = exp(-1j*(dt/hbar)*(q**2/(2*m)*self._A2 + q*(self._Phi))).astype(np.complex64)
 
         # Discrete advection operator in position space
         self._R = self.RotMatrix().astype(np.float32) # rotation matrix field
@@ -201,14 +184,14 @@ class OSM:
             theta = q_mdt_2*B
 
         2. 计算反对称矩阵
-            # t_cross_I = np.cross(theta, I)
+            # t_cross_I = np.cross(theta, I3)
             t_cross_I = np.array([
                 [    0    , theta[2],-theta[1]],
                 [-theta[2],    0    , theta[0]],
                 [ theta[1],-theta[0],    0    ]])
 
         3. 计算旋转矩阵
-            R = I + 2 / (1+theta@theta) * t_cross_I@(t_cross_I + I)
+            R = I3 + 2 / (1+theta@theta) * t_cross_I@(t_cross_I + I3)
 
         用例:
         >>> Xi, Yi, Zi = np.meshgrid(
@@ -232,7 +215,7 @@ class OSM:
         B_ = self._B
 
         # 计算 theta
-        theta_ = 0.25 * self.q/self.m * self.dt * B_  # 形状: (i,j,k,3)
+        theta_ = -0.25 * self.q/self.m * self.dt * B_  # 形状: (i,j,k,3)
 
         # 计算 t_cross_I（反对称矩阵）
         # t_cross_I_ = _t_cross_I_ufunc(theta_)  # 形状: (i,j,k,3,3)
@@ -244,8 +227,8 @@ class OSM:
         t_cross_I_[..., 2, 0] = theta_[..., 1]
         t_cross_I_[..., 2, 1] = -theta_[..., 0]
 
-        # 计算 (t_cross_I + I)
-        t_cross_I_plus_I_ = t_cross_I_ + I  # 形状: (i,j,k,3,3)
+        # 计算 (t_cross_I + I3)
+        t_cross_I_plus_I_ = t_cross_I_ + I3  # 形状: (i,j,k,3,3)
 
         # 计算 theta @ theta
         t_dot_t_ = (theta_ * theta_).sum(axis=-1)  # 形状: (i,j,k)
@@ -256,8 +239,8 @@ class OSM:
         # 计算矩阵乘积
         matrix_prod_ = t_cross_I_ @ t_cross_I_plus_I_  # 形状: (i,j,k,3,3)
 
-        # 构造旋转矩阵 R = I + factor * (t_cross_I @ (t_cross_I + I))
-        R_ = I + factor_[..., None, None] * matrix_prod_  # 形状: (i,j,k,3,3)
+        # 构造旋转矩阵 R = I3 + factor * (t_cross_I @ (t_cross_I + I3))
+        R_ = I3 + factor_[..., None, None] * matrix_prod_  # 形状: (i,j,k,3,3)
 
         return R_
     def _C(self, Psi1):
@@ -272,7 +255,7 @@ class OSM:
         dx, dy, dz = self.dx, self.dy, self.dz
         idx_coords = [(Xi-x0)/dx, (Yi-y0)/dy, (Zi-z0)/dz]
         # displacement interpolation
-        Psi2 = map_coordinates(input=Psi1, coordinates=idx_coords, order=1, mode='wrap', cval=0.0)
+        Psi2 = map_coordinates(input=Psi1, coordinates=idx_coords, order=3, mode='wrap', cval=0.0)
         # the 'order' of spline is 1, which is linear interpolation.
         # the 'wrap' mode is suitable for periodic boundary condition.
         return Psi2
@@ -308,12 +291,12 @@ class OSM:
         '''Enable the following lines to save the time-independent potentials'''
         # np.save("%d_Phi.npy" % self.Titr, self._Phi)
         # np.save("%d_A.npy" % self.Titr, self._A)
-        with open("timing.txt", "a") as f:
+        with open("timing.dat", "a") as f:
             f.write(f"{self.Titr} {self.t}\n")
         # print("At t = ",self.t," sec, Titr = ",self.Titr," saved.")
 
     @staticmethod
-    def _read_timing(timing_file:str="timing.txt"):
+    def _read_timing(timing_file:str="timing.dat"):
         timing_ = np.loadtxt(timing_file, skiprows=1, usecols=(0, 1))
         idx_, t_ = timing_[:, 0].astype(int), timing_[:, 1]
         timing_hash = dict(zip(idx_, t_))
@@ -444,7 +427,8 @@ class OSM:
         z_node = int(Nz/2)
         data = _Psi[:,:,z_node]
         X, Y = x_mesh[:,:,z_node]/x_scale, y_mesh[:,:,z_node]/y_scale
-        ax[0,0].set_aspect('equal')
+        # ax[0,0].set_aspect('equal')
+        ax[0,0].set_box_aspect(1)
         ax[0,0].set_xlabel(r'$x~\mathrm{[%s]}$'%(x_unit),fontsize=10)
         ax[0,0].set_ylabel(r'$y~\mathrm{[%s]}$'%(y_unit),fontsize=10)
         ax[0,0].tick_params(axis='both', labelsize=8)
@@ -462,7 +446,8 @@ class OSM:
             orientation='horizontal',
             )
         cbar1.ax.set_xticklabels(['Min', 'Max'])
-        ax[1,0].set_aspect('equal')
+        # ax[1,0].set_aspect('equal')
+        ax[1,0].set_box_aspect(1)
         ax[1,0].set_xlabel(r'$x~\mathrm{[%s]}$'%(x_unit),fontsize=10)
         ax[1,0].set_ylabel(r'$y~\mathrm{[%s]}$'%(y_unit),fontsize=10)
         ax[1,0].tick_params(axis='both', labelsize=8)
@@ -579,21 +564,18 @@ class OSM:
         Lz = 500*nano[m], dz = 2.5*nano[m], Nz = 256
         T  = 108*pico[s], dt = 0.8*pico[s], Nt = 135
         '''
-        n,ell,wr,wz,pz=0,+1,20*nano,20*nano,m_e*c*1e-4
+        n,ell,Bz,wz,pz=0,+1,2.0,20*nano,0#m_e*c*1e-4
+        wr = 25.6*nano # <=> Bz = 2.0 T
         wavefunc_kwargs = {
             'n':n, 'ell': ell,
             'wr': wr, 'wz': wz, 'pz': pz,
         }
-        from utils.wavefunc import LG_nl_packet
-        wavefunc_cylinderic = LG_nl_packet(n=n,ell=ell,wr=wr,wz=wz,pz=pz)
-        from utils.coords import cartesian_to_cylindrical
-        def wavefunc_cartesian(t,x,y,z):
-            rho, theta, z = cartesian_to_cylindrical(x,y,z)
-            return wavefunc_cylinderic(rho, theta, z)
-        # L = 150*max(wr,wz)
-        # fL= 28e9 * 2.0 # Larmor frequency in [Hz]
-        # v = pz/m_e
-        # dt= min(femto, 0.01*fL, 2*L/(v*Nt))
+        from utils.particles import electron
+        particle = electron()
+        particle.set_state(type_name="Landau",
+            n=n,ell=ell,Bz=Bz,wz=wz,
+            x0=0,y0=0,z0=0,
+            px=0,py=0,pz=pz)
         solver = OSM(
             # Lx=1000*nano,Nx=1024,
             # Ly=1000*nano,Ny=1024,
@@ -606,7 +588,7 @@ class OSM:
             m=m_e,q=-e,
             Phi=Phi, #E=E
             A=A, B=B,
-            Psi0=wavefunc_cartesian,
+            Psi0=lambda t,x,y,z: particle.wavefunc(x,y,z),
             )
         solver.run(Nt=Nt)
 
@@ -647,7 +629,7 @@ if __name__ == "__main__":
         )'''
 
     # Read data from .TXT files
-    timing_hash, Titr_, t_ = solver._read_timing("timing.txt")
+    timing_hash, Titr_, t_ = solver._read_timing("timing.dat")
 
     '''
     # Test visualization
@@ -673,7 +655,7 @@ if __name__ == "__main__":
     for it in tqdm(range(0,Nt+1,Dt), desc="Animating", unit="snapshot"):
         image_path = f"{it}_Psi.jpg"
         images.append(Image.open(image_path))
-    images[0].save('Psi.gif', save_all=True, append_images=images[1:], duration=125, loop=0)
+    images[0].save('Psi.gif', save_all=True, append_images=images[1:], duration=250, loop=0)
     print("GIF saved as Psi.gif")
 
     ''' Decomment the following lines to remove the individual images after creating the GIF
