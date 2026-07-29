@@ -1,8 +1,6 @@
 # Split-Step-Quantum
 
-Operator-Splitting Solvers for the Time-Dependent Schrödinger, Hartree and Dirac Equations.
-
-## Implementation on the Schrödinger equation
+Operator-Splitting Solvers for the Time-Dependent Schrödinger Equation.
 
 The code is benchmarked with a vortex state electron 3D wave-packet propagating in a uniform magnetic field. The initial wave-front is a Laguerre-Gaussian packet.
 
@@ -49,5 +47,3 @@ This is the case of:
 - mesh grid: regular Cartesian mesh of 256x256x256
 
 This showcases the Larmor gyration of momentum and the gyration of intrinsic orbital angular momentum (iOAM). Here, the gyro-period of iOAM is exact half of the period of Larmor, which is well consistent with the analytical results in [this PRA](https://link.aps.org/doi/10.1103/PhysRevA.86.012701).
-
-## Implementation on the Dirac equation
